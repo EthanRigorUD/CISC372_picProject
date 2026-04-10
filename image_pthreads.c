@@ -133,16 +133,22 @@ int main(int argc,char** argv){
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
     
+    
+    long thread;
     struct pthread_args args = {0, &srcImage, &destImage, algorithms[type]};
     thread_count = 10;
     pthread_t* thread_handles;
     thread_handles=(pthread_t*)malloc(thread_count*sizeof(pthread_t));
+    struct pthread_args data_array[thread_count];
 
-    for(long thread=0;thread<thread_count;thread++){
-        args.rank=thread;
-        pthread_create(&thread_handles[thread], NULL, &convolute, (void*)&args);
+    for(thread=0;thread<thread_count;thread++){
+        data_array[thread].src=&srcImage;
+        data_array[thread].dest=&destImage;
+        data_array[thread].algo=algorithms[type];
+        data_array[thread].rank=thread;
+        pthread_create(&thread_handles[thread], NULL, &convolute, (void*)&data_array[thread]);
     }
-    for (long thread=0;thread<thread_count;thread++){
+    for (thread=0;thread<thread_count;thread++){
         pthread_join(thread_handles[thread], NULL);
     }
     free(thread_handles);   
