@@ -1,0 +1,19 @@
+Script started on Fri 10 Apr 2026 10:06:47 PM EDT
+]0;ethanrig@login00.darwin:~/cisc372/CISC372_picProject[?1034h[(ea-cisc372-silber:ethanrig)@login00.darwin CISC372_picProject]$ salloc --ntasks=1 --cpus-per-task=1 --gpus=1 --partiti on=gpu-v100
+salloc: Pending job allocation 6183477
+salloc: job 6183477 queued and waiting for resources
+salloc: job 6183477 has been allocated resources
+salloc: Granted job allocation 6183477
+salloc: Waiting for resource configuration
+salloc: Nodes r2v01 are ready for job
+]0;ethanrig@:~/cisc372/CISC372_picProject[?1034h[ethanrig@r2v01 CISC372_picProject]$ su run image     ./image_openmp pic1.jpg edge
+Took 8 seconds
+]0;ethanrig@:~/cisc372/CISC372_picProject[ethanrig@r2v01 CISC372_picProject]$ exit    srun ./image_pthreads pic1.jpg edge
+Took 7 seconds
+]0;ethanrig@:~/cisc372/CISC372_picProject[ethanrig@r2v01 CISC372_picProject]$ exit
+logout
+salloc: Relinquishing job allocation 6183477
+]0;ethanrig@login00.darwin:~/cisc372/CISC372_picProject[(ea-cisc372-silber:ethanrig)@login00.darwin CISC372_picProject]$ exit
+exit
+
+Script done on Fri 10 Apr 2026 10:11:02 PM EDT
