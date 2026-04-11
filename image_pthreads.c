@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
-#include "image.h"
+#include "image_pthreads.h"
 #include <pthread.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -60,22 +60,31 @@ struct pthread_args{
   double (*algo)[3];
 };
 
+int thread_count;
+
+
 //convolute:  Applies a kernel matrix to an image
-//Parameters: srcImage: The image being convoluted
+//Parameters: rank: the rank of thread
+//            srcImage: The image being convoluted
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
-void* convolute(void* arguments){
+void* convolute(void* arguments){ /* changed header file */
     //Image* srcImage,Image* destImage,Matrix algorithm
     struct pthread_args *args = arguments;
-    printf("here %d\n", args->rank);
+    //printf("here %d\n", args->rank);
     Image* srcImage = args->src;
     Image* destImage = args->dest;
     double (*algorithm)[3]= args->algo;
     long rank = args->rank;
     int row,pix,bit,span;
+
+    int local_size = srcImage->height / thread_count;
+    int local_first = rank * local_size;
+    int local_last = (rank+1)*local_size-1;
+
     span=srcImage->bpp*srcImage->bpp;
-    for (row=0;row<srcImage->height;row++){
+    for (row=local_first;row<=local_last;row++){
         for (pix=0;pix<srcImage->width;pix++){
             for (bit=0;bit<srcImage->bpp;bit++){
                 destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
@@ -102,9 +111,6 @@ enum KernelTypes GetKernelType(char* type){
     else if (!strcmp(type,"emboss")) return EMBOSS;
     else return IDENTITY;
 }
-
-
-int thread_count;
 
 
 //main:
@@ -153,7 +159,7 @@ int main(int argc,char** argv){
     }
     free(thread_handles);   
     
-    stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
+    stbi_write_png("output_pthreads.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);
     
     free(destImage.data);
